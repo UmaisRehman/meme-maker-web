@@ -1,105 +1,101 @@
-"use client";
+"use client"
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useRef } from 'react';
 
-const MemeCreator = () => {
-  const searchParams = useSearchParams();
-  const [generatedImage, setGeneratedImage] = useState('');
-  const topText = useRef();
-  const bottomText = useRef();
+const Creatememe = ({ searchParams }) => {
+  const [img, setImg] = useState('');
+  const text1 = useRef();
+  const text2 = useRef();
 
-  const memeUrl = searchParams.get('url');
-  const templateId = searchParams.get('id');
-
-  useEffect(() => {
-    if (!memeUrl || !templateId) {
-      console.error("Missing URL or Template ID");
-    }
-  }, [memeUrl, templateId]);
-
-  const handleMemeGeneration = async (event) => {
+  const createMeme = async (event) => {
     event.preventDefault();
 
-    const response = await fetch(`https://api.imgflip.com/caption_image?template_id=${templateId}&username=umais-rehman&password=.dpwagmt&text0=${topText.current?.value}&text1=${bottomText.current?.value}`, {
-      method: 'POST',
+    const data = await fetch(`https://api.imgflip.com/caption_image?template_id=${searchParams.id}&username=umais-rehman&password=.dpwagmt&text0=${text1.current?.value}&text1=${text2.current?.value}`, {
+      method: 'POST'
     });
-
-    const data = await response.json();
-    if (data.success) {
-      setGeneratedImage(data.data.url);
-    } else {
-      console.error('Error generating meme:', data.error_message);
-      alert('Failed to create meme. Please try again.');
-    }
-  };
+    const response = await data.json();
+    setImg(response.data.url);
+  }
 
   return (
     <>
-      <div className="container">
-        <h1>Create Your Meme</h1>
-        {memeUrl && <img className="meme-image" src={memeUrl} alt="Meme Template" />}
-        
-        <form onSubmit={handleMemeGeneration} className="form-container">
-          <input type="text" placeholder="Top Text" ref={topText} className="input-field"/>
-          <input type="text" placeholder="Bottom Text" ref={bottomText} className="input-field"/>
-          <button type="submit" className="submit-btn">Generate Meme</button>
+      <div className="creatememe-container">
+        <h1>Create Meme</h1>
+        <div className="meme-display">
+          <img className="meme-image" src={searchParams.url} alt="meme-image" />
+        </div>
+
+        <form onSubmit={createMeme} className="meme-form">
+          <input type="text" placeholder='Enter text 1' ref={text1} />
+          <input type="text" placeholder='Enter text 2' ref={text2} />
+          <button type='submit' className="generate-btn">Create Meme</button>
         </form>
 
-        {generatedImage && <img src={generatedImage} alt="Generated Meme" className="generated-meme"/>}
+        {img && <img src={img} alt="final meme" className="generated-meme" />}
       </div>
 
       <style jsx>{`
-        .container {
+        .creatememe-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           text-align: center;
           padding: 20px;
         }
 
-        .meme-image {
-          max-width: 100%;
-          max-height: 400px;
-          margin: 20px auto;
+        .meme-display {
+          margin-bottom: 20px;
         }
 
-        .form-container {
+        .meme-image {
+          width: 300px;
+          height: auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .meme-form {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 15px;
+          gap: 10px;
           margin-top: 20px;
         }
 
-        .input-field {
+        .meme-form input {
           padding: 10px;
-          font-size: 16px;
-          width: 80%;
-          max-width: 400px;
-          border: 1px solid #ddd;
+          border: 2px solid #ccc;
           border-radius: 5px;
+          font-size: 16px;
         }
 
-        .submit-btn {
+        .generate-btn {
           background-color: #4caf50;
           color: white;
           padding: 10px 20px;
-          border: none;
+          border: 2px solid #4caf50;
           border-radius: 5px;
           cursor: pointer;
           font-size: 16px;
+          margin-top: 10px;
+          transition: background-color 0.3s, border-color 0.3s;
         }
 
-        .submit-btn:hover {
+        .generate-btn:hover {
           background-color: #45a049;
+          border-color: #45a049;
         }
 
         .generated-meme {
           margin-top: 20px;
           max-width: 100%;
-          max-height: 400px;
+          width: 300px;
+          height: auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </>
   );
 };
 
-export default MemeCreator;
+export default Creatememe;

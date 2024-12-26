@@ -1,72 +1,69 @@
-
-'use client';
-
-import React, { useEffect, useState } from 'react';
+"use client";
+import Image from 'next/image';
 import Link from 'next/link';
+import React from 'react';
 
-const Page = () => {
-  const [memes, setMemes] = useState([]);
-
-  useEffect(() => {
-    const fetchMemes = async () => {
-      const response = await fetch('https://api.imgflip.com/get_memes');
-      const data = await response.json();
-      setMemes(data.data.memes);
-    };
-
-    fetchMemes();
-  }, []);
+const Home = async () => {
+  const data = await fetch('https://api.imgflip.com/get_memes');
+  const response = await data.json();
 
   return (
-    <div className="home-container">
-      <h1 className="header">Welcome to Meme Generator</h1>
+    <>
+      <h1 className="title">Meme Maker</h1>
       <div className="meme-gallery">
-        {memes.map((meme) => (
-          <div key={meme.id} className="meme-card">
-            <img src={meme.url} alt={meme.name} className="meme-image" />
-            <p>{meme.name.length > 15 ? `${meme.name.slice(0, 15)}...` : meme.name}</p>
-            <Link
-              href={{
-                pathname: '/creatememe',
-                query: {
-                  url: meme.url,
-                  id: meme.id,
-                },
-              }}
-            >
-              <button className="generate-btn">Generate this Meme</button>
-            </Link>
-          </div>
-        ))}
+        {response.data.memes.map((item) => {
+          return (
+            <div key={item.id} className="meme-card">
+              <Image
+                src={item.url}
+                width={200}
+                height={200}
+                alt={item.name}
+              />
+              <p>{item.name.slice(0, 10)}...</p>
+              <Link
+                href={{
+                  pathname: 'creatememe',
+                  query: {
+                    url: item.url,
+                    id: item.id,
+                  },
+                }}
+              >
+                <button className="generate-btn">Generate this meme</button>
+              </Link>
+            </div>
+          );
+        })}
       </div>
 
       <style jsx>{`
-        .home-container {
+        .title {
           text-align: center;
-          padding: 20px;
-        }
-
-        .header {
           font-size: 2rem;
-          margin-bottom: 30px;
+          margin-bottom: 20px;
         }
 
         .meme-gallery {
           display: flex;
           justify-content: center;
-          gap: 30px;
+          gap: 20px;
           flex-wrap: wrap;
+          margin-top: 20px;
         }
 
         .meme-card {
           width: 200px;
           text-align: center;
+          background-color: #fff;
+          padding: 10px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease-in-out;
         }
 
-        .meme-image {
-          width: 100%;
-          height: auto;
-          border-radius: 8px;
+        .meme-card:hover {
+          transform: scale(1.05);
         }
 
         .generate-btn {
@@ -78,14 +75,20 @@ const Page = () => {
           cursor: pointer;
           font-size: 16px;
           margin-top: 10px;
+          transition: background-color 0.3s ease;
         }
 
         .generate-btn:hover {
           background-color: #45a049;
         }
+
+        .meme-card img {
+          width: 100%;
+          border-radius: 8px;
+        }
       `}</style>
-    </div>
+    </>
   );
 };
 
-export default Page;
+export default Home;
